@@ -1,0 +1,75 @@
+import java.util.*;
+
+/*
+  1. 双链表，head 用来删除， tail用来添加，
+  2. 同时 head tail用来表示 位置 
+
+ * design a Queue with arrayList, 但是有限制条件, arraylist的长度最多为10, queue不限制长度
+ * 简单点儿方法可以把每个array最后一个item存下一个array的指针，这样每个size为10的array可以存9个元素。在空间上没有很高效，但是实现起来容易一些。
+ */
+public class QueueArrayList {
+	static final int SIZE = 5;
+	int head = 0, tail = 0;
+	int count =0;
+	List<Object> headList = new ArrayList<>();
+	List<Object> tailList =this.headList;
+	public void enqueue(Integer num) {
+		if(tail==SIZE-1) {
+				List<Object> newList = new ArrayList<>();
+				newList.add(num);
+				tailList.add(newList);
+				tailList = (List<Object>)tailList.get(tail);
+			tail = 0;
+		}else {
+			tailList.add(num);
+		}
+		tail++;
+		count++;
+	}
+	
+	public Integer peek() {
+		if(count ==0) return null;
+		return (Integer) headList.get(head);
+	}
+	
+	public int size() {
+		return count;
+	}
+	
+	public Integer pop() {
+		if(count==0) return null;
+		int num = (int) headList.get(head);
+		head++;
+		count--;
+		if(head==SIZE-1) {
+			List<Object> newList = (List<Object>) headList.get(head);
+			headList.clear();
+			headList = newList;
+			head=0;
+		}
+		return num;
+	}
+	
+	public static void main(String[] args) {
+		QueueArrayList qal = new QueueArrayList();
+		qal.enqueue(1);
+		qal.enqueue(2);
+		qal.enqueue(3);
+		qal.enqueue(4);
+		qal.enqueue(5);
+		qal.enqueue(6);
+		qal.enqueue(7);
+		System.out.println(qal.peek());
+		System.out.println(qal.pop());
+		System.out.println(qal.peek());
+		System.out.println(qal.pop());
+		System.out.println(qal.pop());
+		//System.out.println(qal.pop());
+		qal.enqueue(8);
+		qal.enqueue(9);
+		qal.enqueue(10);
+		System.out.println(qal.peek());
+		System.out.println(qal.pop());
+		System.out.println(qal.peek());
+	}
+}
