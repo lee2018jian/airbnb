@@ -1,0 +1,30 @@
+
+public class MenuCombinationSum {
+	public List<List<Double>> getCombos(double[] prices, double target){
+		List<List<Double>> result = new ArrayList<>();
+		if(prices==null||prices.length==0||target<=0) return result;
+		int centsTarget= (int) Math.round(target*100);
+		Arrays.sort(prices);
+		int[] centsPrices= new int[prices.length];
+		for(int i = 0 ; i < prices.length ;i++) {
+			centsPrices[i]=(int)Math.round(prices[i]*100);
+		}
+		search(result,centsPrices,0,centsTarget,new ArrayList<>(),prices);
+		return result;
+	}
+	
+	public void search(List<List<Double>> result, int[] centsPrices, int start ,int centsTarget, List<Double> combo, double[] prices) {
+		if(centsTarget==0) {
+			result.add(new ArrayList<>(combo));
+			return;
+		}
+		for(int i = start ; i < centsPrices.length ;i++) {
+			if(i>start&&centsPrices[i]==centsPrices[i-1])
+				{continue;}
+			if(centsPrices[i]>centsTarget) {break;}
+			combo.add(prices[i]);
+			search(result,centsPrices,i+1,centsTarget-centsPrices[i],combo,prices);
+			combo.remove(combo.size()-1);
+		}
+	}
+}

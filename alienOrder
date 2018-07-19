@@ -1,0 +1,47 @@
+ public String alienOrder(String[] words) {
+        Map<Character,Set<Character>> map = new HashMap<>();
+        Map<Character,Integer> degree = new HashMap<>();
+        for(String word:words){
+            for(Character ch:word.toCharArray()){
+                degree.put(ch,0);
+            }
+        }
+        for(int i = 0 ; i < words.length-1;i++){
+            String cur = words[i];
+            String next = words[i+1];
+            int minLen = Math.min(cur.length(),next.length());
+            for(int j = 0 ; j < minLen ; j++){
+                char first = cur.charAt(j);
+                char second = next.charAt(j);
+                if(first!=second){
+                    Set<Character> set = new HashSet<>();
+                    if(map.containsKey(first)) set = map.get(first);
+                    if(!set.contains(second)){
+                        set.add(second);
+                        map.put(first, set);
+                        degree.put(second,degree.get(second)+1);
+                    }
+                    break;
+                }
+            }
+        }
+        Queue<Character> queue = new LinkedList<>();
+        for(char c: degree.keySet()){
+            if(degree.get(c)==0) queue.add(c);
+        }
+        String result ="";
+        while(!queue.isEmpty()){
+            char c=queue.remove();
+            result+=c;
+             if(map.containsKey(c)){
+                for(char c2: map.get(c)){
+                    degree.put(c2,degree.get(c2)-1);
+                    if(degree.get(c2)==0){
+                        queue.add(c2);
+                    }
+                }
+             }
+        }
+        if(result.length()!=degree.size()) return "";
+        return result;
+    }

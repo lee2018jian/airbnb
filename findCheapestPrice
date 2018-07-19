@@ -1,0 +1,24 @@
+    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
+        // src-> dest,price
+        Map<Integer, Map<Integer, Integer>> prices = new HashMap<>();
+        for(int[] flight:flights){
+            if(!prices.containsKey(flight[0])) prices.put(flight[0],new HashMap<Integer,Integer>());
+            prices.get(flight[0]).put(flight[1],flight[2]);
+        }
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a,b)->a[0]-b[0]);
+        pq.offer(new int[]{0,src,k+1});
+        while(!pq.isEmpty()){
+            int[] cur = pq.poll();
+            int price=cur[0];
+            int city = cur[1];
+            int stop = cur[2];
+            if(city==dst) return price;
+            if(stop>0){
+                Map<Integer, Integer> adj = prices.getOrDefault(city, new HashMap<>());
+                for(int a:adj.keySet()){
+                    pq.offer(new int[]{price+adj.get(a),a,stop-1});
+                }
+            }
+        }
+        return -1;
+    }

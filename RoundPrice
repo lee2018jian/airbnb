@@ -1,0 +1,58 @@
+
+public class RoundNum {
+	class NumWithDiff{
+		int num;
+		double diffWithCeil;
+		public NumWithDiff(int n, double c) {
+			this.num=n;
+			this.diffWithCeil=c;
+		}
+	}
+	
+	public int[] roundup(double[] input) {
+		int n = input.length;
+		NumWithDiff[] numWithDiff = new NumWithDiff[n];
+		double sum=0.0;
+		int floorSum = 0;
+		for(int i = 0 ; i < n ;i++) {
+			int floor = (int) input[i];
+			int ceil = floor;
+			if(floor<input[i]) {
+				ceil++;
+			}
+			sum+=input[i];
+			floorSum+=floor;
+			numWithDiff[i] = new NumWithDiff(ceil,ceil-input[i]);
+		}
+		int num = (int) Math.round(sum);
+		int diff = num-floorSum;
+		 Arrays.sort(numWithDiff, new Comparator<NumWithDiff>() {
+             @Override
+             public int compare(NumWithDiff n1, NumWithDiff n2) {
+                 if (n1.diffWithCeil <= n2.diffWithCeil) return -1;
+                 else return 1;
+             }
+         });
+         // Arrays.sort(arrWithDiff, (a, b) -> (Double.compare(b.diffWithCeil, a.diffWithCeil)));
+
+		int[] res =new int[n];
+		int i = 0;
+		while(i<diff) {
+			res[i]=numWithDiff[i].num;
+			i++;
+		}
+		while(i<n) {
+			res[i]=numWithDiff[i].num-1;
+			i++;
+		}
+		return res;
+	}
+	
+	public static void main(String[] args) {
+		double[] input = {1.2,2.5,3.6,4.0};
+		RoundNum rn = new RoundNum();
+		for(int num:rn.roundup(input)) {
+			System.out.println(num);
+		}
+		
+	}
