@@ -1,0 +1,73 @@
+
+public class RegularExpression {
+	public static boolean regMatch(String source,String pattern) {
+		if(pattern.length()==0) return source.length() ==0;
+		if(pattern.length()==1) {
+			if(source.length()>1||source.length()==0) return false;
+			return source.charAt(0)==pattern.charAt(0);
+		}
+		
+		if(source.length() !=0 && (pattern.charAt(0)=='.'|| 
+				pattern.charAt(0)==source.charAt(0))) {
+			if(pattern.charAt(1)=='*') {
+				// hoop ho*p                                       hop  ho*p
+				return regMatch(source.substring(1),pattern)||regMatch(source,pattern.substring(2));		
+			}else if(pattern.charAt(1)=='+') {
+				//   hoop ho+p                                                       hop   ho+p
+				return regMatch(source.substring(1),pattern.substring(2));
+			}else {
+				return regMatch(source.substring(1),pattern.substring(1));
+			}
+		}
+		return pattern.charAt(1)=='*'&&regMatch(source,pattern.substring(2));
+		
+	}
+	
+	public static boolean regMatchDP(String source, String pattern) {
+		int m = source.length(), n = pattern.length();
+		boolean[][] dp = new boolean[m+1][n+1];
+		dp[0][0]=true;
+		for(int i = 1 ; i <= n;i++) {
+			if(pattern.charAt(i-1)=='*' &&dp[0][i-2]) {
+				dp[0][i]=dp[0][i-2];
+			}
+		}
+		for(int i = 1 ; i <=m ;i++) {
+			for(int j =1 ; j <= n ;j++) {
+				if(pattern.charAt(j-1)=='.'||pattern.charAt(j-1)==source.charAt(i-1)) {
+					dp[i][j]=dp[i-1][j-1];
+				}
+				if(pattern.charAt(j-1)=='*') {
+			
+					if(pattern.charAt(j-2)!=source.charAt(i-1)&&pattern.charAt(j-2)!='.') {
+						dp[i][j]=dp[i][j-2];
+					}else {
+						dp[i][j]=dp[i][j-1]||dp[i][j-2]||dp[i-1][j];
+					}
+				}else if(pattern.charAt(j-1)=='+'){
+					dp[i][j]=dp[i-1][j-2];
+				}
+			}
+		}
+		return dp[m][n];
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(regMatch("hoop","hop"));
+		System.out.println();
+		System.out.println(regMatch("hoop","ho*p"));
+		System.out.println(regMatchDP("hoop","ho*p"));
+		System.out.println();
+		System.out.println(regMatch("hop","ho*p"));
+		System.out.println(regMatchDP("hop","ho*p"));
+		System.out.println();
+		System.out.println(regMatch("hoop","ho+p"));
+		System.out.println(regMatchDP("hoop","ho+p"));
+		System.out.println();
+		System.out.println(regMatch("hop","ho+p"));
+		System.out.println(regMatchDP("hop","ho+p"));
+		System.out.println();
+		System.out.println(regMatch("hoop","ho*p*"));
+		System.out.println(regMatchDP("hoop","ho*p*"));
+	}
+}

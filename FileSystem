@@ -1,0 +1,72 @@
+import java.util.*;
+
+class MyRunnableThread implements Runnable{
+	 
+    public  String value ;
+    public MyRunnableThread(String value){
+         this.value=value;
+    }
+    public void run() {
+    	System.out.println(value);
+    } 
+}
+public class FileSystem {
+	Map<String,Integer> fileMap;
+	Map<String, Runnable> callBackMap;
+	public FileSystem() {
+		this.fileMap = new HashMap<>();
+		this.callBackMap = new HashMap<>();
+		this.fileMap.put("", 0);
+	}
+	public boolean create(String filePath,int value) {
+		if(fileMap.containsKey(filePath)) return false;
+		int lastSlashIndex = filePath.lastIndexOf("/");
+		if(!fileMap.containsKey(filePath.substring(0, lastSlashIndex))) return false;
+		fileMap.put(filePath, value);
+		return true;
+	}
+	
+	public int get(String filePath) {
+		if(fileMap.containsKey(filePath)) return fileMap.get(filePath);
+		return -1;
+	}
+	
+	public boolean set(String filePath, int value) {
+		if(!fileMap.containsKey(filePath)) return false;
+		fileMap.put(filePath, value);
+		String curPath = filePath;
+		while(curPath.length()>0) {
+			if(callBackMap.containsKey(curPath)) {
+				callBackMap.get(curPath).run();
+			}
+			int lastSlashIndex = filePath.lastIndexOf("/");
+			curPath = filePath.substring(0, lastSlashIndex);
+		}
+		return  true;
+	}
+	
+	public boolean watch(String filePath,Runnable callback) {
+		if(!fileMap.containsKey(filePath)) return false;
+		callBackMap.put(filePath, callback);
+		return true;
+	}
+	
+	public static void main(String []args) {
+		FileSystem fs = new FileSystem();
+		fs.create("/a", 1);
+		System.out.println(fs.get("/a"));
+		fs.create("/a/b", 2);
+		System.out.println(fs.get("/a/b"));
+		fs.create("/c/d", 1);
+		System.out.println(fs.get("/c"));
+		
+	
+		
+		fs.watch("/a",new MyRunnableThread("yes"));
+		fs.watch("/a/b",new MyRunnableThread("no"));
+		fs.set("/a", 1);
+		fs.set("/a/b", 2);
+		fs.create("/a/b/c", 1);
+		
+	}
+}

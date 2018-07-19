@@ -1,0 +1,96 @@
+import java.util.*;
+
+
+
+public class TravelBuddy{
+	Set<Integer> myCityList;
+	List<Buddy> buddyList;
+	
+	class Buddy  implements Comparable<Buddy>{
+		Set<Integer> cityList;
+		Double similarity;
+		Set<Integer> recommandList=new HashSet<>();
+		
+		public Buddy(int[] list) {
+			this.cityList = list2set(list);
+			int same = 0;
+			for(int city:cityList) {
+				if(myCityList.contains(city)) {
+					same++;
+				}
+				else {
+					recommandList.add(city);
+				}
+			}
+			this.similarity= same/(double) myCityList.size();
+		}
+
+		@Override
+		public int compareTo(Buddy o) {
+			// TODO Auto-generated method stub
+			return Double.compare(this.similarity, o.similarity);
+			
+		}
+	}
+
+	public static HashSet<Integer> list2set(int[] wishlist) {
+	    HashSet<Integer> set = new HashSet<>();
+	    for (int city : wishlist) set.add(city);
+	    return set;
+	}
+	
+	public TravelBuddy(int[] myCityList, int[][] buddies) {
+		this.myCityList = list2set(myCityList);
+		this.buddyList = new ArrayList<>();
+		for(int[] candidate:buddies) {
+			Buddy candiBuddy = new Buddy(candidate);
+			if(candiBuddy.similarity>0.5) {
+				this.buddyList.add(candiBuddy);
+			}
+			
+		}
+	  //Collections.sort(this.buddyList,(a,b)->(int)(10*b.similarity-10*a.similarity));
+	}
+	
+	public List<Integer> recommend(int k){
+		List<Integer> recommandList = new ArrayList<>();
+		HashSet<Integer> used = new HashSet<>();
+		int count =0;
+		for(Buddy buddy:this.buddyList) {
+			for(int city:buddy.recommandList) {
+				if(k==count) return recommandList;
+				if(!used.contains(city)) {
+					used.add(city);
+					recommandList.add(city);
+					count++;
+				}
+				
+			}
+		}
+		return recommandList;
+	}
+	
+	public static void main(String[] args) {
+		TravelBuddy solution = new TravelBuddy(new int[]{1, 2, 3, 4, 5},
+                new int[][]{
+                        new int[]{3, 4, 6, 8, 10}, // 2
+                        new int[]{1, 2, 4, 5, 8}, // 4
+                        new int[]{1, 3, 6, 7, 9}, // 2
+                        new int[]{1, 2, 4, 7, 11}, // 3
+                        new int[]{1,2,3,5, 6, 7, 12, 13}  // 4
+        });
+
+        List<Integer> r1 = solution.recommend(10);
+        List<Integer> r2 = solution.recommend(5);
+        List<Integer> r3 = solution.recommend(2);
+
+        System.out.println(r1);
+        System.out.println(r2);
+        System.out.println(r3);
+        return;
+    }
+
+
+
+
+}

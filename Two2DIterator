@@ -1,0 +1,134 @@
+import java.util.Iterator;
+import java.util.*;
+
+public class Two2DIterator implements Iterator<Integer> {
+	private Iterator<List<Integer>> rowIter;
+	private Iterator<Integer> colIter;
+	
+	public Two2DIterator(List<List<Integer>> vec2d) {
+		rowIter = vec2d.iterator();
+		colIter = Collections.emptyIterator();
+	}
+	
+	
+	@Override
+	public boolean hasNext() {
+		// TODO Auto-generated method stub
+		while((colIter==null|| !colIter.hasNext())&&rowIter.hasNext()){
+			colIter = rowIter.next().iterator();
+		}
+		
+		return colIter!=null&&colIter.hasNext();
+	}
+
+	@Override
+	public Integer next() {
+		// TODO Auto-generated method stub
+		return colIter.next();
+	}
+
+	public void remove() {
+		while((colIter==null&&rowIter.hasNext())) {
+			colIter=rowIter.next().iterator();
+		}
+		if(colIter!=null) {
+			colIter.remove();
+		}
+	}
+}
+==============================
+public class TwoDIterator {
+	private List<List<Integer>> array;
+	private int rowId;
+	private int colId;
+	
+	public TwoDIterator(List<List<Integer>> array){
+		this.array=array;
+		this.rowId=0;
+		this.colId=0;
+	}
+	
+	public boolean hasNext(){
+		if(array==null||array.size()==0) return false;
+		
+		while(rowId<array.size()&&(array.get(rowId)==null||array.get(rowId).isEmpty())){
+			rowId++;
+		}
+		return rowId<array.size();
+	}
+	
+	public int getNext(){
+		int result = array.get(rowId).get(colId);
+		colId++;
+		//if last item in current row, move to next row
+		if(colId== array.get(rowId).size()){
+			rowId++;
+			colId=0;
+		}
+		return result;
+	}
+	
+	public void remove(){
+		List<Integer> listToRemove = new ArrayList<>();
+	    int rowToRemove;
+	    int colToRemove;
+	    
+	    //1. if item is last in row
+	    if(colId==0){
+	    	rowToRemove = rowId-1;
+	    	listToRemove = array.get(rowToRemove);
+	    	colToRemove = listToRemove.size()-1;
+	    	listToRemove.remove(colToRemove);
+	    }
+	    else{
+	    	rowToRemove = rowId;
+	    	listToRemove = array.get(rowToRemove);
+	    	colToRemove = colId-1;
+	    	listToRemove.remove(colToRemove);
+	    }
+	    
+	    if(listToRemove.isEmpty()){
+	    	array.remove(listToRemove);
+	    	rowId--;
+	    }
+	    if(colId!=0){
+	    	colId--;
+	    }
+	}
+	
+	public static void main(String[] args) {
+	    List<List<Integer>> array = new ArrayList<>();
+	    List<Integer> row1 = new ArrayList<>();
+	    row1.add(1);
+	    row1.add(2);
+	    row1.add(3);
+	    
+	    array.add(row1);
+	    
+	    List<Integer> row3 = new ArrayList<>();
+	    array.add(row3);
+	    
+	    List<Integer> row2 = new ArrayList<>();
+	    row2.add(4);
+	    row2.add(5);
+	    array.add(row2);
+	    
+	    TwoDIterator sol = new TwoDIterator(array);
+	    while (sol.hasNext()) {
+	      int result = sol.getNext();
+	      System.out.println(result);
+	      
+	      if (result == 3) {
+	        sol.remove();
+	      }
+	    }
+	    
+	    System.out.println();
+	    
+	    for (List<Integer> row : array) {
+	      for (Integer elem : row) {
+	        System.out.println(elem);
+	      } 
+	    }
+	  }
+}
