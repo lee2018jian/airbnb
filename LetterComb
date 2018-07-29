@@ -1,0 +1,35 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class LetterComb {
+	
+	public static void main(String[] args) {
+		LetterComb lc = new LetterComb();
+		List<String> res = new ArrayList<>();
+		lc.combLetter("3erHa", new StringBuilder(), 0, res);
+		System.out.println(res);
+		System.out.println(res.size());
+		
+	}
+	
+	public void combLetter(String word, StringBuilder path, int index, List<String> res) {
+		if(word.length()<index) return;
+		if(word.length()==index) {
+			res.add(path.toString());
+			 return;
+		}
+		else{
+			char cur = word.charAt(index);
+			if(Character.isDigit(cur)) {
+				combLetter(word,path.append(cur),index+1,res);
+			}
+			else {
+				combLetter(word,path.append(Character.toUpperCase(cur)),index+1,res);
+				path.deleteCharAt(path.length()-1);
+				combLetter(word,path.append(Character.toLowerCase(cur)),index+1,res);
+				path.deleteCharAt(path.length()-1);
+			}
+		
+		}
+	}
+}

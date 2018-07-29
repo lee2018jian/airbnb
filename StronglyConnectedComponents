@@ -1,0 +1,59 @@
+import static java.util.Arrays.asList;
+
+import java.util.*;
+
+public class StronglyConnectedComponents {
+	private void search(Set<Integer> res, Map<Integer,Set<Integer>> nodes, int cur, int start, Set<Integer> visited, Set<Integer> currVisited) {
+		currVisited.add(cur);
+		visited.add(cur);
+		for(int next:nodes.get(cur)) {
+			if(res.contains(next)&&next!=start) {
+				res.remove(next);
+			}
+			if(!currVisited.contains(next)) {
+				search(res,nodes,next,start,visited,currVisited);
+			}
+		}
+	}
+	
+	public List<Integer> getMin(int[][] edges, int n){
+		Map<Integer,Set<Integer>> nodes = new HashMap<>();
+		for(int i = 0 ; i < edges.length ; i++) {
+			nodes.put(i, new HashSet<>());
+		}
+		for(int[] edge:edges) {
+			nodes.get(edge[0]).add(edge[1]);
+		}
+		Set<Integer> visited = new HashSet<>();
+		Set<Integer> res = new HashSet<>();
+		for(int i = 0 ; i < n ; i++) {
+			if(!visited.contains(i)) {
+				res.add(i);
+				visited.add(i);
+				search(res,nodes,i,i,visited,new HashSet<>());
+			}
+			
+		}
+		return new ArrayList<>(res);
+	}
+
+	public static void main(String[] args) {
+	
+		 int[][] edges = {  
+				  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+				  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+				  {0, 0, 0 ,0, 0, 0, 0, 0, 0, 1}, 
+				  {0, 0, 0, 1, 0, 1, 0, 1, 0, 0}, 
+				  {0, 0, 0, 0, 0, 0 ,0, 0, 1, 0},
+				  {0, 0, 0, 0, 0, 0, 0, 0, 1, 0}, 
+				  {0, 0, 0, 0, 0, 0, 1, 0, 0 ,0}, 
+				  {0, 0, 0, 0, 1, 0, 0, 0, 0, 0}, 
+				  {0, 0, 0, 0, 0, 0, 0, 1, 0, 0}, 
+				  {0, 0, 0, 1, 0, 0, 1, 0, 0, 0}};
+				 
+				 
+		 edges = new int[][]{{2, 9}, {3, 3}, {3, 5}, {3, 7}, {4, 8}, {5, 8}, {6, 6}, {7, 4}, {8, 7}, {9, 3}, {9, 6}};
+         
+		 System.out.println(new StronglyConnectedComponents().getMin(edges, 10));
+	}
+}
