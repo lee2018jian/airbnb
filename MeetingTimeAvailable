@@ -1,0 +1,104 @@
+import static java.util.Arrays.asList;
+
+import java.util.*;
+class Interval{
+	int start;
+	int end;
+	public Interval(int start, int end) {
+		this.start = start;
+		this.end = end;
+	}
+	
+}
+public class MeetingTimeAvailable {
+	 
+	class Point implements Comparable<Point>{
+
+		int time;
+		boolean isStart;
+		
+		public Point(int time, boolean isStart) {
+			this.time = time;
+			this.isStart = isStart;
+		}
+		
+		@Override
+		public int compareTo(Point that) {
+			if(this.time!=that.time || this.isStart == that.isStart) {
+				return this.time-that.time;
+			}
+			else {
+				return this.isStart?-1:1;
+			}
+		}
+		
+	}
+	
+
+	
+	 public ArrayList<Interval> getFreeTime(List<List<Interval>> input) {
+	        ArrayList<Interval> res = new ArrayList<>();
+	        
+	        if(input == null || input.size() == 0) {
+	            return res;
+	        }
+	        
+	        ArrayList<Integer> startArr = new ArrayList<>();
+	        ArrayList<Integer> endArr = new ArrayList<>();
+	        
+	        
+	        for(int i=0; i<input.size(); i++){
+	            List<Interval> item = input.get(i);
+	            
+	            for(int j=0; j<item.size(); j++){
+	                Interval itv = item.get(j);
+	                startArr.add(itv.start);   
+	                endArr.add(itv.end); 
+	            }
+	        }
+	        Collections.sort(startArr);
+	        Collections.sort(endArr);
+	       // System.out.println(startArr);
+	        //System.out.println(endArr);
+	        
+	        int p = 0, q = 0;
+	        int busy = 0;
+	        
+	        while(p < startArr.size() && q < endArr.size()){
+	            int startTime = startArr.get(p);
+	            int endTime = endArr.get(q);
+	            
+	            if(startTime < endTime){
+	                busy++;
+	                p++;
+	            }
+	            else{
+	                busy--;
+	                q++;
+	            }
+	            if(busy == 0){
+	                int smaller = startTime < endTime? startTime:endTime;
+	                int bigger = startTime >= endTime? startTime:endTime;
+	                
+	                Interval freeTime = new Interval(smaller, bigger);
+	                res.add(freeTime);
+	            }
+	        }
+	        return res;
+	    }
+	
+	public static void main(String[] args) {
+		MeetingTimeAvailable mt = new MeetingTimeAvailable();
+		  List<List<Interval>> meetings = asList(
+			      asList(new Interval(1,3), new Interval(6,7) ), //
+			      asList( new Interval(2,4)),
+			      asList(new Interval(2,3), new Interval(9,12)));
+	
+		
+		list = mt.getFreeTime(meetings);
+		list.forEach(l->{
+			System.out.println(l.start + " " + l.end);
+			
+		});
+	}
+}
