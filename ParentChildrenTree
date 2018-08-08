@@ -1,0 +1,114 @@
+import java.util.*;
+
+public class ParentChildrenTree {
+	Map<String,Boolean> cache = new HashMap<>();
+	
+	public boolean validNTA(Map<Character,Map<Character,String>> map, char[] input, String acceptedValue) {
+		if(input.length==0) return false;
+		if(input.length==1) {
+			for(char c: acceptedValue.toCharArray()) {
+				if(c==input[0]) return true;
+			}
+			return false;
+		}
+		
+		String inputString = new String(input);
+		if(cache.containsKey(inputString)) return cache.get(inputString);
+		
+		Set<String> nextStates = getNextStates(input,map);
+		
+		for(String str:nextStates) {
+			if(validNTA(map,str.toCharArray(),acceptedValue)) {
+				cache.put(inputString,true);
+				return true;
+			}
+			
+		}
+		
+		cache.put(inputString,false);
+		return false;
+	}
+	
+	private Set<String> getNextStates(char[] input, Map<Character,Map<Character,String>> map){
+		Set<String> res = new HashSet<>();
+		dfs(input,1,map,"",res);
+		return res;
+	}
+	
+	private void dfs(char[] input, int index, Map<Character,Map<Character,String>> map, String cur,Set<String> res) {
+		if(index== input.length) {
+			res.add(cur);
+			return;
+		}
+		
+		if(!map.containsKey(input[index-1])|| !map.get(input[index]).containsKey(input[index])) return ;
+		
+		String next = map.get(input[index-1]).get(input[index]);
+		for(char c:next.toCharArray()) {
+			dfs(input,index+1,map,cur+c,res);
+		}
+	}
+public static void main(String[] args) {
+		
+		ParentChildrenTree solver = new ParentChildrenTree();
+		// example from https://users.cs.duke.edu/~ola/courses/cps149/problems/week2/trellis.html
+		
+		// NTA 1:, the only acceptable final state is 'c'.
+		Map<Character, Map<Character, String>> map = new HashMap<>();
+		map.put('a', new HashMap<>());		//		a	b	c
+		map.put('b', new HashMap<>());		//		---------	
+		map.put('c', new HashMap<>());		//	 a|	a	a	c
+		map.get('a').put('a', "a");			//	 b|	ca	a	b
+		map.get('a').put('b', "a");			//	 c|	c	b	a
+		map.get('a').put('c', "c");
+		map.get('b').put('a', "ca");
+		map.get('b').put('b', "a");
+		map.get('b').put('c', "b");
+		map.get('c').put('a', "c");
+		map.get('c').put('b', "b");
+		map.get('c').put('c', "a");
+		
+		String input1 = "bba";
+		String input2 = "abab";
+		String input3 = "babbba";
+		String input4 = "a";
+		String input5 = "aaaaa";
+		String input6 = "baaab";
+		String input7 = "abbbaba";
+		String input8 = "baba";
+		String input9 = "bcbab";
+		
+		List<String> inputs = new ArrayList<>();
+		inputs.add(input1);inputs.add(input2);inputs.add(input3);inputs.add(input4);
+		inputs.add(input5);inputs.add(input6);inputs.add(input7);inputs.add(input8);
+		inputs.add(input9);
+		
+		
+		System.out.println("NTA 1");
+		for(int i = 0 ; i < inputs.size(); i++) {
+			solver.cache.clear();
+			System.out.println("input: " + inputs.get(i) + 
+					", result: " + ((solver.validNTA(map, inputs.get(i).toCharArray(), "c") == true) ? "accept" : "reject"));
+		}
+		
+		// NTA 2: the acceptable final states are 'b' and 'c'
+		Map<Character, Map<Character, String>> map2 = new HashMap<>();
+		map2.put('a', new HashMap<>());
+		map2.put('b', new HashMap<>());
+		map2.put('c', new HashMap<>());
+		map2.get('a').put('a', "ab");
+		map2.get('a').put('b', "a");
+		map2.get('a').put('c', "c");
+		map2.get('b').put('a', "a");
+		map2.get('b').put('b', "ab");
+		map2.get('b').put('c', "b");
+		map2.get('c').put('a', "c");
+		map2.get('c').put('b', "b");
+		map2.get('c').put('c', "ab");
+		System.out.println("NTA 2");
+		solver.cache.clear();
+		System.out.println("Input: abc " + (solver.validNTA(map2, "abc".toCharArray(), "bc") == true ? "accept" : "reject") );
+		solver.cache.clear();
+		System.out.println("Input: cbc " + (solver.validNTA(map2, "cbc".toCharArray(), "bc") == true ? "accept" : "reject") );
+	}
+}

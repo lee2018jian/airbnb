@@ -1,0 +1,45 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+//https://tinyurl.com/ycra756s
+//https://tinyurl.com/y9knfgok
+// Design a system that can deposit, withdraw and getRemaining given a timestamp
+/*
+ * 第一轮design一个bank system, 跟地里之前的面经一样，要实现一个deposite(id, timestamp, amount)， withdraw(id, timestamp, amount)， check(id) --> return int; 
+ * 另外还要实现一个balance的function，这个function跟地里的面经不太一样，要求在logn的时间复杂度内完成; 给的参数是ID， startTime, endTime, 
+ * 但是要注意startTime是不包含在内的。比如说给你一个startTime 0, 这个时间点下一个时间是10的话，你算balance的时间段应该是从10开始，而不是从0开始。
+ * 另外如果startTime是负数的话，那么startTime就从0开始算；这题之前在面经上看到过，看到的做法是用一个map来记录timestamp与amount的之间的对应关系，
+ * 但是这样有一个问题便是hashmap中的元素是无序的，所以如果你直接用hashmap的话，你得事先排序，这样时间复杂度就不是log级别了。
+ * 因为准备的时间有效，当时看面经的时候没有考虑到这点，其实这里应该另外用一个Map<id, List<timestamp>>来存属于那个用户的时间线，这里suppose用户交易的时间是顺序的（跟面试官确认下），
+ * 所以这样我们存的list就是有序的，就不需要额外的排序了，直接用binary search就好了；写到后面发现了这个问题，马上改code，但还是没来得及，没写完。。。哎，还是准备不到位了；
+ */
+public class BankSystem {
+	Map<Long,TreeMap<Long,Integer>> bank = new HashMap<>();
+	
+	public void deposit(long accountId,int amount, long time) {
+		bank.putIfAbsent(accountId, new TreeMap<>());
+		TreeMap<Long,Integer> accountMap = bank.get(accountId);
+		int newBanlance = accountMap.lastEntry().getValue()+amount;
+		accountMap.put(time,newBanlance);
+	}
+	
+	public void withDraw(long accountId, int amount, long time) {
+		if(!bank.containsKey(accountId)) return;
+		TreeMap<Long,Integer> accountMap = bank.get(accountId);
+		int remain = accountMap.lastEntry().getValue()-amount;
+		if(remain<0) return;
+		accountMap.put(time, remain);
+	}
+	
+	public int[] getStatus(long accountId, long start, long end) {
+		if(!bank.containsKey(accountId)) return null;
+		int[] res = new int[2];
+		TreeMap<Long,Integer> accountMap = bank.get(accountId);
+		Integer s = accountMap.floorEntry(start).getValue();
+		Integer e = accountMap.ceilingEntry(end).getValue();
+		res[0]= s==null?0:s;
+		res[1]= e ==null?0:e;
+		return res;
+	}
+}

@@ -1,5 +1,60 @@
 import java.util.*;
-
+public List<Buddy> buddies;
+	public Set<String> myWishList;
+	
+	public CommonCities(Set<String> myWishList,Map<String,Set<String>> friendWishList) {
+		this.buddies = new ArrayList<>();
+		this.myWishList = myWishList;
+		for(String buddyName : friendWishList.keySet()) {
+			Set<String> wishList= friendWishList.get(buddyName);
+			Set<String> intersection = new HashSet<String>(wishList);
+			intersection.retainAll(myWishList);
+			int simliarity = intersection.size();
+			if(simliarity >= myWishList.size()/2) {
+				buddies.add(new Buddy(buddyName,simliarity,wishList));
+			}
+		}
+	}
+	
+	public List<String> recommendCities(int k){
+		List<String> res = new ArrayList<>();
+		List<Buddy> candidiates = buddies;
+		candidiates.sort((a,b)->b.similairty-a.similairty);
+		int i = 0 ; 
+		while(k>0&&i<candidiates.size()) {
+			Set<String> diff = new HashSet<>(candidiates.get(i).wishList);
+			diff.removeAll(myWishList);
+			if(diff.size()<=k) {
+				res.addAll(diff);
+				k-=diff.size();
+				i++;
+			}
+			else {
+				Iterator<String> it = diff.iterator();
+				while(k>0) {
+					res.add(it.next());
+					k--;
+				}
+			}
+		}
+		return res;
+	}
+	
+	class Buddy implements Comparable<Buddy> {
+		Set<String> wishList;
+		String name;
+		int similairty;
+		public Buddy(String n,int similarity, Set<String> wishList) {
+			this.name = n;
+			this.similairty = similarity;
+			this.wishList = wishList;
+		}
+		@Override
+		public int compareTo(Buddy o) {
+			// TODO Auto-generated method stub
+			return o.similairty-this.similairty;
+		}
+	}
 
 
 public class TravelBuddy{

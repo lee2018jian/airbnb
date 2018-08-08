@@ -1,0 +1,18 @@
+design. RSS reader 设计database schema, 具体到怎么index，follow up: 需要纪录post read/unread; 需要记录feed read/unread; 怎么scale..本文原创自1point3acres论坛
+我的答案仅供参考：
+user table: {user_id, user_name, user_info etc}. visit 1point3acres for more.
+posts table: {post_id, feed_id, publish_time, post_title, post_content}
+feeds table: {feed_id, feed_url, create_time}
+subscription table: {subcription_id, user_id, feed_id, last_read_time} last_read_time 用于纪录feed read/unread,我一开始加了一个新的table，经面试官提示合并到这个table里面。
+read status table: {post_id, user_id} 只有看过的post会放到这个table里面
+
+
+
+3.系统设计翻译系统，我看了所有气床的面经包括他公司blog上关于翻译系统的设计，感觉都没讲很清楚，所以虽然准备了但是感觉还是有点迷糊，当然我也没在气床工作过不具体了解他们的翻译系统，只是刚好我曾经做过app的localization（就是翻译各种语言给app store这样不同国家的人下载的版本就是那个语言的版本），所以面试的时候我是结合自己工作经验做的介绍，以及一些如何做网站翻译的扩展设计（气床的产品主要还是网站，当然现在也有手机端app，手机端的方法跟我做过的应该是一样的），以下只是我个人的理解，大部分也得到面试官的认可所以应该比较接近他们的系统。面试之后还跟他聊了一些他们翻译系统平时的用法和我给的方法的差别（下面会说）
+
+翻译系统大体分为三个部分: 1. UI (front end)， 2. translation service (middle layer), 3. translator portal，这三部分在一起最后会做出完整的version (web/app)发给client，要么是给app store的app package，要么是转换成网页发给用户（或者CDN for scalability reason). 1point 3acres 论坛
+1) UI部分: front-end developer和designer通常不用去理会如何翻译，他们主要做的是修改ui，这个过程中可能会增加，修改，删除一些文字（比如一个按键的label，比如增加新的网页和目录的标题etc)，他们的任务是确定网页和app这些UI用主语言（比如英语）是没问题的，通常这些修改之后，会提交给translation service...提交的东西你可以理解成是一整套resource文件，里面包含所有的ui相关的文字资料，标注了这是哪个Version，有哪些ui (key-value, where key represent ui variable name like "agreeButtonText", value represents actual text in English "Agree"），通常每个修改还会带一条介绍帮助翻译更好的理解语境，比如叫description里面会写这句话是当用户同意某个条款的时候点击同意的，这样翻译的人就会翻译成（同意，认同之类的），有些语言会有多义词所以这条解释很重要
+2) translation service: 当文字修改发给这个service，他负责三个部分，一个从resource文件中找出新版本中被改变的文字信息，比如有几行条款文字改了，或者一些button的文字改了，第二部分是把这些信息汇总（tokenlize)然后发给 Translator portal，可以理解成一个接受各种key-value pair的工具或者翻译平台，实际翻译发生在那里， 第三部分是当信息被翻译之后，汇总并声称新的resource文件给每个需要的语言，比如一开始只有en-us.resource，翻译之后这个Service会生成zh-cn.resource (中文），es-es.resource （西班牙语）。汇总后会连同这些语言一起发布这个版本的网页或者app (之后就是发布端了这里就不多讲）
+3) translator portal: 每个公司做多语言产品都必然会雇佣一些翻译来翻译它的产品，所以会有一个翻译平台，翻译的人不需要真实了解或者使用这个产品，他们需要的只是拿到一些词汇和语境介绍，然后给出相关语言的翻译，当translation service给了一系列需要翻译的词汇之后，这个平台会收录整理排序这些词汇（有些词汇可能是一样的，有些词汇可能更重要更急需比如一些legal文件更新），然后翻译的人从这个平台拿词，根据介绍翻译好然后发回去，通常可能会有一些PM或者designer会尝试把翻译好的版本自己测试一遍确定读起来通顺没问题，这要看公司的要求和产品重要性了。
+
+上面这三部分基本构成了一套翻译系统，其实没太多系统设计的概念，关于手机端，最后会生成一个主的package 已经所有语言的Resource file发给store然后store负责转换语言生成新的package给不同语言的用户。网络段会有区别，可以理解成这个网页会根据不同的域名比如airbnb.jp跟Server索取日语版的网页，这时候server会有自己的一套生成系统自动提取翻译好的日语词汇安在对应的ui上 (eg.一个button叫agreButton, text = "$agreeButtonText"，他会自己找jp resource里agreeButtonText对应的值，日语的“同意”），生成网页后发给Client；Scale的考虑可以有cache这些网页到CDN, browser cache or even server cache，来缓解read-load...这里就用基本系统设计概念扩展就好了。. 

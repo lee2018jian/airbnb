@@ -1,5 +1,32 @@
+import java.util.*;
 
 public class MenuCombinationSum {
+	double e = 0.00001;
+	public List<List<Double>> getCombo2(double[] prices, double target){
+		List<List<Double>> res = new ArrayList<>();
+		if(prices==null||prices.length==0||target<=0) return res;
+		Arrays.sort(prices);
+		dfs(prices,target,0,new ArrayList<>(),0, res);
+		return res;
+	}
+	
+	void dfs(double[] prices, double target,int index, List<Double> path, double curSum, List<List<Double>> res) {
+		if(Math.abs(curSum-target)<=e) {
+			res.add(new ArrayList<>(path));
+			return;
+		}
+		if(curSum>target) return;
+		for(int i = index ; i < prices.length &&target-prices[i]>e;i++) {
+			if(i>index&&Math.abs(prices[i]-prices[i-1])<=e)continue;
+			
+			path.add(prices[i]);
+			dfs(prices,target,i+1,path,curSum+prices[i],res);
+			path.remove(path.size()-1);
+		}
+		
+	}
+	
+	
 	public List<List<Double>> getCombos(double[] prices, double target){
 		List<List<Double>> result = new ArrayList<>();
 		if(prices==null||prices.length==0||target<=0) return result;
@@ -26,5 +53,16 @@ public class MenuCombinationSum {
 			search(result,centsPrices,i+1,centsTarget-centsPrices[i],combo,prices);
 			combo.remove(combo.size()-1);
 		}
+	}
+	public static void main(String[] args) {
+		double[] prices = {0.32,1.30,3.37, 0.65,0.95,2.30};
+		MenuCombinationSum x = new MenuCombinationSum();
+		System.out.println(x.getCombos(prices, 2.57));
+		System.out.println(x.getCombo2(prices, 2.57));
+		System.out.println();
+        double[] prices2 = {10.02,1.11,2.22,3.01,4.02,2.00,5.03};
+		System.out.println(x.getCombo2(prices2, 7.03));
+		System.out.println(x.getCombos(prices2, 7.03));
+
 	}
 }
