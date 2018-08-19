@@ -65,9 +65,7 @@ public class GuessNumber {
                 add(5);
                 // insert(6);
             }};
-             System.out.println("\nstart to guess " + target + " ...");
-             System.out.println("res: " + res);
-            System.out.println("candList: " + cands);
+
             int counter = 0;
             Iterator<Integer> iter = cands.iterator();
             while (iter.hasNext() && res.size() < 4) {
@@ -76,8 +74,7 @@ public class GuessNumber {
                 int guessedCount = res.size();
                 String guessCand = genNumber(res, cand);
                 int guessRes = guessServer(guessCand);
-                // System.out.println("cand: " + cand);
-                // System.out.println("guessRes: " + guessRes);
+
                 if (guessRes == guessedCount) {
                     iter.remove();
                 } else if (guessRes > guessedCount) {
